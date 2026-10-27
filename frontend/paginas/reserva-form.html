@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reserva · COSEG Mobilidade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<link rel="stylesheet" href="/static/css/base.css">
+<link rel="stylesheet" href="/static/css/telas.css">
+</head>
+<body>
+<a class="pular" href="#conteudo">Ir para o conteúdo</a>
+<div class="app">
+  <aside id="menu" aria-label="Menu"></aside>
+  <main id="conteudo" tabindex="-1">
+    <div class="topo">
+      <div><h1 id="titulo">Nova reserva</h1><div class="sub" id="sub">O veículo fica bloqueado da saída até o retorno.</div></div>
+      <span class="sp"></span>
+      <a class="btn lin" href="/frota/"><i data-lucide="calendar-days"></i>Ver agenda da frota</a>
+    </div>
+    <div class="corpo form">
+      <section class="card" aria-labelledby="titulo">
+        <div class="aviso" id="aviso-topo" role="alert" hidden>
+          <span class="i"><i data-lucide="octagon-alert"></i></span>
+          <div><b id="aviso-titulo"></b><div id="aviso-texto"></div></div>
+        </div>
+        <form id="form" novalidate>
+          <fieldset id="campos-form" style="border:0;margin:0;padding:0;min-width:0">
+            <div class="bloco" id="bloco-1">
+              <div><h3><em>1</em>Quem pede</h3><p>Usado pelo COSEG para falar com você.</p></div>
+              <div class="campos">
+                <div class="campo"><label for="solicitante">Solicitante <em>*</em></label><div class="in"><input id="solicitante" name="solicitante" maxlength="120" autocomplete="name" required></div></div>
+                <div class="campo"><label for="setor">Setor <em>*</em></label><div class="in"><input id="setor" name="setor" maxlength="80" list="setores" autocomplete="off" required><i data-lucide="chevron-down" class="fim"></i></div>
+                  <datalist id="setores"><option value="Administrativo"><option value="Comercial"><option value="Comunicação"><option value="Engenharia"><option value="Jurídico"><option value="Manutenção"><option value="Meio Ambiente"><option value="Operações"><option value="Recursos Humanos"><option value="Segurança"></datalist></div>
+                <div class="campo todo"><label for="atividade">Atividade <em>*</em></label><div class="in"><input id="atividade" name="atividade" maxlength="120" placeholder="Ex.: Inspeção das defensas do berço 105" required></div></div>
+              </div>
+            </div>
+            <div class="bloco" id="bloco-2">
+              <div><h3><em>2</em>Trajeto</h3><p>De onde sai e para onde vai.</p></div>
+              <div class="campos">
+                <div class="campo"><label for="origem">Origem <em>*</em></label><div class="in"><i data-lucide="map-pin"></i><input id="origem" name="origem" maxlength="120" placeholder="Ex.: Portaria principal" required></div></div>
+                <div class="campo"><label for="destino">Destino <em>*</em></label><div class="in"><i data-lucide="flag"></i><input id="destino" name="destino" maxlength="120" placeholder="Ex.: Berço 105" required></div></div>
+              </div>
+            </div>
+            <div class="bloco" id="bloco-3">
+              <div><h3><em>3</em>Horário</h3><p>O retorno precisa ser depois da saída. Viagem que passa da meia-noite pede data de retorno.</p></div>
+              <div class="campos">
+                <div class="campo"><span class="rotulo">Saída <em>*</em></span>
+                  <div class="par"><div class="in"><i data-lucide="calendar"></i><input type="date" id="data" name="data" aria-label="Data de saída" required></div><div class="in"><i data-lucide="clock-3"></i><input type="time" id="hora_saida" name="hora_saida" aria-label="Hora de saída" required></div></div></div>
+                <div class="campo"><span class="rotulo">Retorno <em>*</em></span>
+                  <div class="par" id="par-retorno"><div class="in"><i data-lucide="clock-9"></i><input type="time" id="hora_retorno" name="hora_retorno" aria-label="Hora de retorno" required></div><div class="in" id="cx-data-retorno" hidden><i data-lucide="calendar"></i><input type="date" id="data_retorno" name="data_retorno" aria-label="Data de retorno"></div></div>
+                  <label class="volta"><input type="checkbox" id="volta" name="volta">Volta no dia seguinte</label></div>
+              </div>
+            </div>
+            <div class="bloco" id="bloco-4">
+              <div><h3><em>4</em>Veículo</h3><p>Escolha um veículo ou só a categoria. Com a categoria, o servidor escolhe o menor livre.</p></div>
+              <div class="campos">
+                <div class="campo"><label for="passageiros">Passageiros <em>*</em></label>
+                  <div class="passo" id="passo"><button type="button" id="menos" aria-label="Menos um passageiro"><i data-lucide="minus"></i></button><input type="number" id="passageiros" name="passageiros" min="1" max="18" inputmode="numeric" value="1" required><button type="button" id="mais" aria-label="Mais um passageiro"><i data-lucide="plus"></i></button></div></div>
+                <div class="campo"><span class="rotulo" id="rot-modo">Escolher por</span>
+                  <div class="tog" role="radiogroup" aria-labelledby="rot-modo">
+                    <label><input type="radio" name="modo" value="veiculo" checked><i data-lucide="car-front" class="p"></i>Veículo</label>
+                    <label><input type="radio" name="modo" value="categoria"><i data-lucide="layers" class="p"></i>Categoria</label></div></div>
+                <div class="campo todo" id="campo-veiculo"><label for="veiculo">Veículo <em>*</em></label>
+                  <div class="in"><i data-lucide="car-front"></i><select id="veiculo" name="veiculo"><option value="">Selecione um veículo</option></select><i data-lucide="chevron-down" class="fim"></i></div></div>
+                <div class="campo todo" id="campo-categoria" hidden><label for="categoria_pretendida">Categoria <em>*</em></label>
+                  <div class="in"><i data-lucide="layers"></i><select id="categoria_pretendida" name="categoria_pretendida"><option value="">Selecione uma categoria</option><option value="LEVE">Leve · até 4 passageiros</option><option value="COLETIVO">Coletivo · até 18 passageiros</option></select><i data-lucide="chevron-down" class="fim"></i></div>
+                  <div class="msg dica"><i data-lucide="info"></i>O sistema escolhe o veículo livre, o menor que atende.</div></div>
+                <div class="campo todo"><label for="observacoes">Observações</label><div class="in area"><textarea id="observacoes" name="observacoes" rows="2" placeholder="Ex.: levar EPI para a equipe"></textarea></div></div>
+              </div>
+            </div>
+          </fieldset>
+          <div class="rodape">
+            <span class="nota"><i data-lucide="shield-check"></i>A disponibilidade é confirmada pelo servidor ao enviar.</span>
+            <a class="btn lin" href="/reservas/">Cancelar</a>
+            <button type="submit" class="btn pri" id="enviar">Enviar reserva</button>
+          </div>
+        </form>
+      </section>
+
+      <aside class="card disp" aria-labelledby="disp-titulo">
+        <div class="hd"><h2 id="disp-titulo">Livres no seu horário</h2><span class="rot" id="disp-qtd"></span></div>
+        <div class="rot" id="disp-resumo" style="margin-top:-6px"></div>
+        <div class="ops" id="ops" role="radiogroup" aria-label="Veículos livres" aria-live="polite"></div>
+        <div class="rot" style="display:flex;gap:8px;align-items:center"><i data-lucide="info" class="p"></i>Ao escolher um veículo aqui, o campo do formulário é atualizado.</div>
+      </aside>
+    </div>
+  </main>
+</div>
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<script type="module" src="/static/js/reserva-form.js"></script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entrar · COSEG Mobilidade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<link rel="stylesheet" href="/static/css/base.css">
+<link rel="stylesheet" href="/static/css/telas.css">
+</head>
+<body>
+<main class="entrar" id="conteudo">
+  <section class="card" aria-labelledby="titulo">
+    <div class="marca" id="marca"><div><b>COSEG</b><small>Mobilidade · Porto do Itaqui</small></div></div>
+    <h1 id="titulo">Entrar</h1>
+    <p class="sub">Reserva de veículos da frota do Porto.</p>
+    <form id="form-entrar" novalidate>
+      <div class="aviso" id="aviso" role="alert" hidden>
+        <span class="i"><i data-lucide="octagon-alert"></i></span>
+        <div><b id="aviso-titulo"></b><p id="aviso-texto"></p></div>
+      </div>
+      <div class="campo">
+        <label for="usuario">Usuário <em>*</em></label>
+        <div class="in"><i data-lucide="user"></i><input id="usuario" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required></div>
+      </div>
+      <div class="campo">
+        <label for="senha">Senha <em>*</em></label>
+        <div class="in"><i data-lucide="lock-keyhole"></i><input id="senha" name="password" type="password" autocomplete="current-password" required></div>
+      </div>
+      <button class="btn pri" type="submit" id="botao">Entrar</button>
+    </form>
+  </section>
+</main>
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<script type="module" src="/static/js/entrar.js"></script>
+</body>
+</html>

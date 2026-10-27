@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel do dia · COSEG Mobilidade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<link rel="stylesheet" href="/static/css/base.css">
+<link rel="stylesheet" href="/static/css/telas.css">
+</head>
+<body>
+<a class="pular" href="#conteudo">Ir para o conteúdo</a>
+<div class="app">
+  <aside id="menu" aria-label="Menu"></aside>
+  <main id="conteudo" tabindex="-1">
+    <div class="topo">
+      <div><h1 id="saudacao">Painel do dia</h1><div class="sub" id="data-hora"></div></div>
+      <span class="sp"></span>
+      <form class="busca" id="form-busca" role="search">
+        <i data-lucide="search"></i>
+        <input type="search" id="busca" name="q" placeholder="Buscar reserva ou veículo" aria-label="Buscar reserva ou veículo">
+      </form>
+      <a class="btn pri" href="/reservas/nova/"><i data-lucide="plus"></i>Nova reserva</a>
+    </div>
+
+    <section class="kpis" id="kpis" aria-label="Indicadores de hoje">
+      <div class="card kpi"><span class="rot">Em uso agora</span><div class="n esq" style="height:36px;width:80px"></div></div>
+      <div class="card kpi"><span class="rot">Livres agora</span><div class="n esq" style="height:36px;width:80px"></div></div>
+      <div class="card kpi"><span class="rot">Reservas hoje</span><div class="n esq" style="height:36px;width:80px"></div></div>
+    </section>
+
+    <section class="meio">
+      <div class="card">
+        <div class="cab"><h2>Linha do tempo de hoje</h2><span class="sp"></span>
+          <div class="leg" aria-hidden="true"><span><i style="background:#f2f3f5"></i>Concluída</span><span><i style="background:var(--tinta)"></i>Em andamento</span><span><i style="box-shadow:inset 0 0 0 1.5px #d9dde3"></i>Agendada</span></div></div>
+        <div id="tl-area"></div>
+      </div>
+      <div class="card">
+        <div class="cab"><h2>Na rua agora</h2><span class="sp"></span><a class="mais" href="/frota/">Frota<i data-lucide="arrow-up-right" class="p"></i></a></div>
+        <div class="rua" id="rua"></div>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<script type="module" src="/static/js/painel.js"></script>
+</body>
+</html>

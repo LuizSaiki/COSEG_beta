@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Frota · COSEG Mobilidade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<link rel="stylesheet" href="/static/css/base.css">
+<link rel="stylesheet" href="/static/css/telas.css">
+</head>
+<body>
+<a class="pular" href="#conteudo">Ir para o conteúdo</a>
+<div class="app">
+  <aside id="menu" aria-label="Menu"></aside>
+  <main id="conteudo" tabindex="-1">
+    <div class="topo">
+      <div><h1>Frota</h1><div class="sub" id="sub">Carregando…</div></div>
+      <span class="sp"></span>
+      <div class="filtros" id="filtros" role="group" aria-label="Filtrar por situação"></div>
+      <form class="busca" id="form-busca" role="search" style="width:240px">
+        <i data-lucide="search"></i>
+        <input type="search" id="busca" placeholder="Buscar veículo" aria-label="Buscar veículo">
+      </form>
+      <button type="button" class="btn lin" id="cadastrar" hidden><i data-lucide="plus"></i>Cadastrar veículo</button>
+    </div>
+    <div class="corpo">
+      <div id="lista" aria-live="polite">
+        <div class="esq" style="height:180px"></div>
+      </div>
+      <aside class="card det" id="detalhe" aria-label="Detalhes do veículo selecionado" hidden></aside>
+    </div>
+  </main>
+</div>
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<script type="module" src="/static/js/frota.js"></script>
+</body>
+</html>

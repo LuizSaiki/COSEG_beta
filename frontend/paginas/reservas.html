@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reservas · COSEG Mobilidade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<link rel="stylesheet" href="/static/css/base.css">
+<link rel="stylesheet" href="/static/css/telas.css">
+</head>
+<body>
+<a class="pular" href="#conteudo">Ir para o conteúdo</a>
+<div class="app">
+  <aside id="menu" aria-label="Menu"></aside>
+  <main id="conteudo" tabindex="-1">
+    <div class="topo">
+      <div><h1>Reservas</h1><div class="sub" id="sub-semana">Carregando…</div></div>
+      <span class="sp"></span>
+      <form class="busca" id="form-busca" role="search" style="width:280px">
+        <i data-lucide="search"></i>
+        <input type="search" id="busca" placeholder="Buscar por pessoa ou atividade" aria-label="Buscar por pessoa ou atividade">
+      </form>
+      <a class="btn pri" href="/reservas/nova/"><i data-lucide="plus"></i>Nova reserva</a>
+    </div>
+
+    <section class="semana" id="semana" aria-label="Semana atual"></section>
+
+    <section class="card" aria-label="Lista de reservas">
+      <div class="barra-ferr">
+        <div id="abas" style="display:contents" role="group" aria-label="Situação"></div>
+        <span class="sp"></span>
+        <div class="periodo" id="periodo"></div>
+        <label class="pilula f sel" id="rot-veiculo"><span class="sr-only">Veículo</span><select id="f-veiculo"><option value="">Veículo</option></select><i data-lucide="chevron-down" class="p"></i></label>
+        <label class="pilula f sel" id="rot-setor"><span class="sr-only">Setor</span><select id="f-setor"><option value="">Setor</option></select><i data-lucide="chevron-down" class="p"></i></label>
+      </div>
+      <div id="tabela" class="tabela-rolagem" aria-live="polite"></div>
+      <div class="pag" id="pag" hidden></div>
+    </section>
+  </main>
+</div>
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<script type="module" src="/static/js/reservas.js"></script>
+</body>
+</html>
