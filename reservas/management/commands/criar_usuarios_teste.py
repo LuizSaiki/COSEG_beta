@@ -1,6 +1,9 @@
+import hashlib
 import os
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import make_password
 from django.core.management.base import BaseCommand, CommandError
 
 USUARIOS = [
@@ -26,7 +29,14 @@ class Command(BaseCommand):
             usuario.first_name, usuario.last_name = nome, sobrenome
             usuario.is_staff = staff
             usuario.is_active = True
-            usuario.set_password(senha)
+            if os.environ.get("VERCEL"):
+                # Cada instância do Vercel recria o banco. Com sal aleatório o hash da senha
+                # muda por instância e o Django derruba a sessão (o hash entra na sessão).
+                # Sal fixo, derivado da SECRET_KEY, deixa o hash igual em todas.
+                sal = hashlib.sha256(f"{settings.SECRET_KEY}:{username}".encode()).hexdigest()[:22]
+                usuario.password = make_password(senha, salt=sal)
+            else:
+                usuario.set_password(senha)
             usuario.save()
             self.stdout.write(f"{'Criado' if criado else 'Atualizado'}: {username} ({nome} {sobrenome})")
         self.stdout.write(self.style.SUCCESS("Usuários de teste prontos."))
