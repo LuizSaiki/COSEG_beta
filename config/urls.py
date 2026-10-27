@@ -17,7 +17,17 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from . import paginas
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/", include("reservas.urls")),
+    # Páginas do front-end (mesma origem da API; o login é checado no front)
+    path("", paginas.inicio, name="inicio"),
+    path("entrar/", paginas.entrar, name="entrar"),
+    path("painel/", paginas.painel, name="painel"),
+    path("frota/", paginas.frota, name="frota"),
+    path("reservas/", paginas.reservas, name="reservas"),
+    path("reservas/nova/", paginas.reserva_nova, name="reserva-nova"),
+    path("reservas/<int:pk>/editar/", paginas.reserva_editar, name="reserva-editar"),
 ]

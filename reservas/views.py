@@ -187,7 +187,8 @@ def login_view(request):
     cache.delete(chave)
     login(request, user)
     return JsonResponse({"sucesso": True, "mensagem": "Login realizado.",
-                         "usuario": {"username": user.username, "coseg": user.is_staff}})
+                         "usuario": {"username": user.username, "nome": user.get_full_name(),
+                                     "coseg": user.is_staff}})
 
 
 @require_http_methods(["POST"])
@@ -199,7 +200,8 @@ def logout_view(request):
 @login_obrigatorio
 @require_http_methods(["GET"])
 def eu(request):
-    return JsonResponse({"username": request.user.username, "coseg": request.user.is_staff})
+    return JsonResponse({"username": request.user.username, "nome": request.user.get_full_name(),
+                         "coseg": request.user.is_staff})
 
 
 # ---------- VEÍCULOS ----------
