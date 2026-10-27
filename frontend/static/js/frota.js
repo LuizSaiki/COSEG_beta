@@ -270,7 +270,6 @@ function dialogoVeiculo(v) {
       const comCampo = tem && marcarErros(form, erro.erros);
       if (erro.erros && erro.erros.__all__) ctrl.erro(textoDoErro("__all__", erro.erros.__all__[0]));
       else if (!comCampo) ctrl.erro(textoGeral(erro));
-      else if (erro.erros.categoria && erro.erros.categoria[0].code === "reservas_incompativeis") ctrl.erro(textoDoErro("categoria", erro.erros.categoria[0]));
     }
   });
 }

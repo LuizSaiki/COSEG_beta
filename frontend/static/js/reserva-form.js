@@ -45,7 +45,9 @@ function mostrarMsg(tipo, nome, texto) {
   const input = form.elements[nome];
   const caixa = caixaDe(nome);
   if (!input || !caixa) return;
+  if (tipo === "alerta" && form.querySelector(`.msg[data-tipo="erro"][data-de="${nome}"]`)) return; // erro do servidor vale mais
   limparMsgs(tipo, nome);
+  if (tipo === "erro") limparMsgs("alerta", nome);
   caixa.classList.add(tipo === "erro" ? "erro" : "alerta");
   const alvo = input.closest(".campo");
   const id = `msg-${tipo}-${nome}`;

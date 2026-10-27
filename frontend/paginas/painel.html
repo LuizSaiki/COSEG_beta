@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
 <link rel="stylesheet" href="/static/vendor/phosphor/style.css">
+<link rel="icon" type="image/svg+xml" href="/static/img/favicon.svg">
 <link rel="stylesheet" href="/static/css/base.css">
 <link rel="stylesheet" href="/static/css/telas.css">
 </head>
@@ -17,6 +18,12 @@
   <main id="conteudo" tabindex="-1">
     <div class="topo">
       <div><h1 id="saudacao">Painel do dia</h1><div class="sub" id="data-hora"></div></div>
+      <div class="seletor-data" role="group" aria-label="Escolher o dia do painel">
+        <button type="button" class="ic" id="dia-ant" aria-label="Dia anterior"><i data-lucide="chevron-left"></i></button>
+        <label class="in-data"><i data-lucide="calendar"></i><span class="sr-only">Data do painel</span><input type="date" id="dia-input"></label>
+        <button type="button" class="btn lin" id="dia-hoje">Hoje</button>
+        <button type="button" class="ic" id="dia-prox" aria-label="Próximo dia"><i data-lucide="chevron-right"></i></button>
+      </div>
       <span class="sp"></span>
       <form class="busca" id="form-busca" role="search">
         <i data-lucide="search"></i>
@@ -33,12 +40,12 @@
 
     <section class="meio">
       <div class="card">
-        <div class="cab"><h2>Linha do tempo de hoje</h2><span class="sp"></span>
+        <div class="cab"><h2 id="tl-titulo">Linha do tempo de hoje</h2><span class="sp"></span>
           <div class="leg" aria-hidden="true"><span><i style="background:#f2f3f5"></i>Concluída</span><span><i style="background:var(--tinta)"></i>Em andamento</span><span><i style="box-shadow:inset 0 0 0 1.5px #d9dde3"></i>Agendada</span></div></div>
         <div id="tl-area"></div>
       </div>
       <div class="card">
-        <div class="cab"><h2>Na rua agora</h2><span class="sp"></span><a class="mais" href="/frota/">Frota<i data-lucide="arrow-up-right" class="p"></i></a></div>
+        <div class="cab"><h2 id="rua-titulo">Na rua agora</h2><span class="sp"></span><a class="mais" href="/frota/">Frota<i data-lucide="arrow-up-right" class="p"></i></a></div>
         <div class="rua" id="rua"></div>
       </div>
     </section>

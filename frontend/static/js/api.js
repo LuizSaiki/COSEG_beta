@@ -139,7 +139,7 @@ export function textoDoErro(campo, item, ctx = {}) {
     case "passageiros_invalido": return "Informe ao menos 1 passageiro.";
     case "data_passada": return "Escolha a data de hoje ou uma data futura.";
     case "horario_passado": return `O horário de saída${ctx.hora_saida ? " " + ctx.hora_saida : ""} já passou. Escolha um horário a partir de agora.`;
-    case "retorno_invalido": return "O horário de retorno precisa ser depois do horário de saída. Se a viagem passa da meia-noite, informe também a data de retorno.";
+    case "retorno_invalido": return "O horário de retorno precisa ser depois do horário de saída. Se a viagem passa da meia-noite, marque Volta no dia seguinte.";
     case "data_retorno_invalida": return "A data de retorno precisa ser a da saída ou, no máximo, 1 dia depois.";
     case "veiculo_inativo": return `O veículo${v ? " " + v.codigo : ""} está inativo. Escolha outro veículo ou uma categoria.`;
     case "categoria_incompativel": return `O veículo${v ? " " + v.codigo + " é da categoria " + nomeCategoria(v.categoria) + "," : ""} diferente da categoria escolhida. Ajuste um dos dois.`;

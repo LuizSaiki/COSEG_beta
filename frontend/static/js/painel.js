@@ -1,11 +1,12 @@
 import { api, textoGeral } from "./api.js";
 import { iniciar, saudacao, primeiroNome } from "./sessao.js";
 import { esc, icones, iconeVeiculo, estadoErro, estadoVazio } from "./ui.js";
-import { hojeISO, somarDias, intervalo, situacao, dataPorExtenso, horaAgora } from "./dominio.js";
+import { hojeISO, somarDias, intervalo, situacao, dataPorExtenso, horaAgora, deISO, nomeDia, dataCompleta } from "./dominio.js";
 
 const JANELA_INI = 7, JANELA_FIM = 19; // linha do tempo 07h–19h
 const el = (id) => document.getElementById(id);
 let usuario, dados = null;
+let dia = hojeISO();
 
 document.getElementById("form-busca").addEventListener("submit", (e) => {
   e.preventDefault();
@@ -14,7 +15,7 @@ document.getElementById("form-busca").addEventListener("submit", (e) => {
 });
 
 async function carregar() {
-  const hoje = hojeISO();
+  const hoje = dia;
   try {
     const [v, hojeR, ontemR] = await Promise.all([
       api.veiculos(),
@@ -26,14 +27,14 @@ async function carregar() {
     // viagem de ontem que volta hoje também ocupa o dia
     ontemR.reservas.filter((r) => r.data_retorno === hoje).forEach((r) => mapa.set(r.id, r));
     dados = { veiculos: v.veiculos, reservas: [...mapa.values()], hoje };
+    el("dia-input").value = dia;
     desenhar();
   } catch (erro) {
-    if (!dados) {
-      const msg = textoGeral(erro);
-      estadoErro(el("tl-area"), msg, carregar);
-      el("kpis").innerHTML = "";
-      el("rua").innerHTML = "";
-    }
+    // falha ao abrir um dia: mostra o erro (ex.: data_invalida) e não deixa dados de outro dia na tela
+    dados = null;
+    estadoErro(el("tl-area"), textoGeral(erro), carregar);
+    el("kpis").innerHTML = "";
+    el("rua").innerHTML = "";
   }
 }
 
@@ -46,7 +47,8 @@ function posicao(d, base) {
 function desenhar() {
   const agora = new Date();
   const { veiculos, reservas, hoje } = dados;
-  el("data-hora").textContent = `${dataPorExtenso(agora)} · ${horaAgora(agora)}`;
+  const ehHoje = hoje === hojeISO();
+  el("data-hora").textContent = ehHoje ? `${dataPorExtenso(agora)} · ${horaAgora(agora)}` : `${dataPorExtenso(deISO(hoje))} de ${hoje.slice(0, 4)}${hoje < hojeISO() ? " · dia passado" : " · dia futuro"}`;
 
   const validas = reservas.filter((r) => r.status !== "CANCELADA").map((r) => ({ r, sit: situacao(r, agora), ...intervalo(r) }));
   const ativos = veiculos.filter((v) => v.ativo);
@@ -59,13 +61,27 @@ function desenhar() {
   const aSair = doDia.filter((x) => x.sit === "agendada").sort((a, b) => a.ini - b.ini);
   const hm = (d) => horaAgora(d);
 
-  el("kpis").innerHTML = `
+  if (ehHoje) {
+    el("kpis").innerHTML = `
     <div class="card kpi"><span class="rot">Em uso agora</span><div class="n">${usoAtivos}<small>de ${ativos.length} ativos</small></div>
       <div class="seg" aria-hidden="true">${ativos.map((v) => `<i class="${codigosEmUso.has(v.codigo) ? "u" : ""}"></i>`).join("")}</div></div>
     <div class="card kpi"><span class="rot">Livres agora</span><div class="n">${livres}</div>
       <div class="rot">${proxRetorno ? `Próximo retorno: ${esc(proxRetorno.r.veiculo.codigo)} às ${hm(proxRetorno.fim)}` : "Nenhum veículo na rua"}</div></div>
     <div class="card kpi"><span class="rot">Reservas hoje</span><div class="n">${doDia.length}</div>
       <div class="rot">${aSair.length ? `${aSair.length} ainda ${aSair.length === 1 ? "vai" : "vão"} sair · próxima às ${hm(aSair[0].ini)}` : "Nenhuma saída pendente"}</div></div>`;
+  } else {
+    // em outro dia "agora" não se aplica: mostra os números do próprio dia
+    const usados = new Set(validas.map((x) => x.r.veiculo.codigo));
+    const usadosAtivos = ativos.filter((v) => usados.has(v.codigo)).length;
+    const primeira = [...doDia].sort((a, b) => a.ini - b.ini)[0];
+    el("kpis").innerHTML = `
+    <div class="card kpi"><span class="rot">Veículos usados no dia</span><div class="n">${usados.size}<small>de ${ativos.length} ativos</small></div>
+      <div class="seg" aria-hidden="true">${ativos.map((v) => `<i class="${usados.has(v.codigo) ? "u" : ""}"></i>`).join("")}</div></div>
+    <div class="card kpi"><span class="rot">Sem reserva no dia</span><div class="n">${ativos.length - usadosAtivos}</div>
+      <div class="rot">Veículos ativos sem nenhuma reserva</div></div>
+    <div class="card kpi"><span class="rot">Reservas no dia</span><div class="n">${doDia.length}</div>
+      <div class="rot">${primeira ? `Primeira saída às ${hm(primeira.ini)}` : "Nenhuma reserva nesta data"}</div></div>`;
+  }
 
   // linha do tempo
   const horas = Array.from({ length: JANELA_FIM - JANELA_INI }, (_, i) => `<span>${String(JANELA_INI + i).padStart(2, "0")}h</span>`).join("");
@@ -80,18 +96,28 @@ function desenhar() {
     });
     return `<div class="tl-r"><b>${esc(v.codigo)}</b><div class="pista">${barras}</div></div>`;
   }).join("");
-  const dentro = agora.getHours() >= JANELA_INI && agora.getHours() < JANELA_FIM;
+  const dentro = ehHoje && agora.getHours() >= JANELA_INI && agora.getHours() < JANELA_FIM;
   const marca = dentro ? `<div class="agora" style="left:calc(84px + (100% - 84px) * ${posicao(agora, hoje) / 100})"><span>${horaAgora(agora)}</span></div>` : "";
   el("tl-area").removeAttribute("aria-busy");
   el("tl-area").innerHTML = veiculos.length
     ? `<div class="tl-rolagem"><div class="tl-largura"><div class="tl-h" style="margin:24px 0 4px"><span></span><div class="horas" aria-hidden="true">${horas}</div></div><div style="position:relative">${linhas}${marca}</div></div></div>
        ${foraDaJanela ? `<p class="rot" style="margin:10px 0 0">${foraDaJanela} ${foraDaJanela === 1 ? "reserva fora" : "reservas fora"} da janela 07h–19h.</p>` : ""}`
     : "";
+  if (veiculos.length && !validas.length) {
+    el("tl-area").insertAdjacentHTML("beforeend", '<div id="tl-vazio"></div>');
+    estadoVazio(el("tl-vazio"), { icone: "calendar-x-2", titulo: "Nenhuma reserva nesta data", texto: ehHoje ? "" : "Escolha outro dia ou faça uma nova reserva." });
+  }
   if (!veiculos.length) estadoVazio(el("tl-area"), { icone: "car-front", titulo: "Nenhum veículo cadastrado" });
 
   // na rua agora
   const rua = [...emAndamento].sort((a, b) => a.fim - b.fim);
-  if (!rua.length) {
+  el("tl-titulo").textContent = ehHoje ? "Linha do tempo de hoje" : `Linha do tempo · ${nomeDia(hoje)}, ${dataCompleta(hoje).slice(0, 5)}`;
+  el("rua-titulo").textContent = ehHoje ? "Na rua agora" : "Viagens do dia";
+  if (!ehHoje) {
+    const lista = [...doDia].sort((a, b) => a.ini - b.ini);
+    if (!lista.length) estadoVazio(el("rua"), { icone: "parking-square", titulo: "Nenhuma reserva nesta data" });
+    else el("rua").innerHTML = lista.map((x) => `<div class="it"><div class="foto">${iconeVeiculo(x.r.veiculo.categoria)}</div><div><div class="l1"><b class="codigo">${esc(x.r.veiculo.codigo)}</b><span class="h">${hm(x.ini)}–${hm(x.fim)}</span></div><p>${esc(x.r.solicitante)} · ${esc(x.r.destino)}</p></div></div>`).join("");
+  } else if (!rua.length) {
     estadoVazio(el("rua"), { icone: "parking-square", titulo: "Nenhum veículo na rua agora", texto: aSair.length ? `Próxima saída às ${hm(aSair[0].ini)}.` : "" });
   } else {
     el("rua").innerHTML = rua.map((x) => {
@@ -107,6 +133,19 @@ el("saudacao").textContent = `${saudacao()}, ${primeiroNome(usuario.nome || usua
 el("tl-area").setAttribute("aria-busy", "true");
 el("tl-area").innerHTML = `<div class="esq" style="height:280px"></div>`;
 el("rua").innerHTML = `<div class="esq" style="height:120px"></div>`;
+function irPara(novo) {
+  if (!novo) return;
+  dia = novo;
+  el("dia-input").value = dia;
+  el("tl-area").setAttribute("aria-busy", "true");
+  el("tl-area").innerHTML = `<div class="esq" style="height:280px"></div>`;
+  carregar();
+}
+el("dia-ant").addEventListener("click", () => irPara(somarDias(dia, -1)));
+el("dia-prox").addEventListener("click", () => irPara(somarDias(dia, 1)));
+el("dia-hoje").addEventListener("click", () => irPara(hojeISO()));
+el("dia-input").addEventListener("change", (e) => irPara(e.target.value));
+el("dia-input").value = dia;
 await carregar();
-setInterval(carregar, 60000);
+setInterval(() => { if (dia === hojeISO()) carregar(); }, 60000);
 icones();

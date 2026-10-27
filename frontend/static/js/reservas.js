@@ -9,7 +9,9 @@ import {
 const POR_PAGINA = 10;
 const el = (id) => document.getElementById(id);
 let coseg = false;
-let todas = [];
+let todas = [];   // tudo que o usuário pode ver (semana e listas de filtro)
+let lista = [];   // resultado da consulta, filtrado no servidor quando há dia único e/ou veículo
+let seq = 0;
 const f = { aba: "todas", de: "", ate: "", veiculo: "", setor: "", q: new URLSearchParams(location.search).get("q") || "", pagina: 1 };
 const hoje = hojeISO();
 
@@ -20,13 +22,32 @@ async function carregar() {
   try {
     const r = await api.reservas();
     todas = r.reservas;
-    desenhar();
+    await atualizarLista();
   } catch (erro) {
     estadoErro(el("tabela"), textoGeral(erro), carregar);
   }
 }
 
 // ---------- filtros ----------
+// RF05: dia único e veículo vão na query; período de vários dias continua no navegador.
+async function atualizarLista() {
+  const consulta = {};
+  if (f.de && f.de === f.ate) consulta.data = f.de;
+  if (f.veiculo) consulta.veiculo = f.veiculo;
+  if (!Object.keys(consulta).length) { lista = todas; desenhar(); return; }
+  const minha = ++seq;
+  carregando(el("tabela"), 4);
+  el("pag").hidden = true;
+  try {
+    const r = await api.reservas(consulta);
+    if (minha !== seq) return;
+    lista = r.reservas;
+    desenhar();
+  } catch (erro) {
+    if (minha !== seq) return;
+    estadoErro(el("tabela"), textoGeral(erro), atualizarLista);
+  }
+}
 const agora = () => new Date();
 function comSit(lista) {
   const a = agora();
@@ -34,7 +55,7 @@ function comSit(lista) {
 }
 function baseFiltrada() {
   const q = semAcento(f.q.trim());
-  return comSit(todas).filter(({ r }) =>
+  return comSit(lista).filter(({ r }) =>
     (!f.de || r.data >= f.de) && (!f.ate || r.data <= f.ate) &&
     (!f.veiculo || r.veiculo.codigo === f.veiculo) && (!f.setor || r.setor === f.setor) &&
     (!q || semAcento(`${r.solicitante} ${r.atividade} ${r.setor} ${r.veiculo.codigo} ${r.origem} ${r.destino}`).includes(q)));
@@ -94,7 +115,7 @@ function desenharFiltros() {
 // ---------- tabela ----------
 function linha({ r, sit }) {
   const v = r.veiculo;
-  const agendada = sit === "agendada";
+  const agendada = sit === "agendada" || sit === "andamento"; // back permite editar/cancelar ATIVA a qualquer momento
   const acoes = `<a href="#" data-ver="${r.id}" role="button" aria-label="Ver detalhes da reserva ${r.id}" title="Ver"><i data-lucide="eye"></i></a>` +
     (agendada ? `<a href="/reservas/${r.id}/editar/" aria-label="Editar reserva ${r.id}" title="Editar"><i data-lucide="pencil"></i></a>
       <button type="button" data-cancelar="${r.id}" aria-label="Cancelar reserva ${r.id}" title="Cancelar"><i data-lucide="x"></i></button>` : "") +
@@ -149,7 +170,7 @@ const achar = (id) => todas.find((r) => r.id === Number(id));
 
 function detalhes(r) {
   const sit = situacao(r);
-  const agendada = sit === "agendada";
+  const agendada = sit === "agendada" || sit === "andamento"; // back permite editar/cancelar ATIVA a qualquer momento
   const item = (rot, val, todo) => `<div class="${todo ? "todo" : ""}"><span>${rot}</span><b>${esc(val)}</b></div>`;
   const acoes = [{ rotulo: "Fechar", classe: "lin" }];
   if (agendada) {
@@ -211,7 +232,7 @@ document.addEventListener("click", (e) => {
     const d = dia.dataset.dia;
     const jaAtivo = f.de === d && f.ate === d;
     f.de = jaAtivo ? "" : d; f.ate = jaAtivo ? "" : d; f.pagina = 1;
-    desenhar(); el("semana").querySelector(`[data-dia="${d}"]`).focus(); return;
+    atualizarLista().then(() => { const b = el("semana").querySelector(`[data-dia="${d}"]`); if (b) b.focus(); }); return;
   }
   const pg = t.closest("[data-pagina]");
   if (pg && !pg.disabled) { f.pagina = Number(pg.dataset.pagina); desenhar(); (el("pag").querySelector("[aria-current]") || el("pag")).focus(); el("tabela").scrollIntoView({ block: "start" }); return; }
@@ -221,13 +242,13 @@ document.addEventListener("click", (e) => {
   if (can) { const r = achar(can.dataset.cancelar); if (r) cancelar(r); return; }
   const exc = t.closest("[data-excluir]");
   if (exc) { const r = achar(exc.dataset.excluir); if (r) excluir(r); return; }
-  if (t.closest("[data-limpar-periodo]")) { f.de = f.ate = ""; f.pagina = 1; desenhar(); return; }
+  if (t.closest("[data-limpar-periodo]")) { f.de = f.ate = ""; f.pagina = 1; atualizarLista(); return; }
   if (t.closest("[data-periodo]")) { alternarPopover(); return; }
   if (!t.closest(".periodo")) fecharPopover();
 });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") fecharPopover(true); });
 
-el("f-veiculo").addEventListener("change", (e) => { f.veiculo = e.target.value; f.pagina = 1; desenhar(); });
+el("f-veiculo").addEventListener("change", (e) => { f.veiculo = e.target.value; f.pagina = 1; atualizarLista(); });
 el("f-setor").addEventListener("change", (e) => { f.setor = e.target.value; f.pagina = 1; desenhar(); });
 el("busca").value = f.q;
 el("busca").addEventListener("input", (e) => { f.q = e.target.value; f.pagina = 1; desenhar(); });
@@ -252,9 +273,9 @@ function alternarPopover() {
   el("p-aplicar").addEventListener("click", () => {
     f.de = el("p-de").value; f.ate = el("p-ate").value;
     if (f.de && f.ate && f.ate < f.de) [f.de, f.ate] = [f.ate, f.de];
-    f.pagina = 1; fecharPopover(); desenhar();
+    f.pagina = 1; fecharPopover(); atualizarLista();
   });
-  el("p-limpar").addEventListener("click", () => { f.de = f.ate = ""; f.pagina = 1; fecharPopover(); desenhar(); });
+  el("p-limpar").addEventListener("click", () => { f.de = f.ate = ""; f.pagina = 1; fecharPopover(); atualizarLista(); });
 }
 
 // ---------- início ----------

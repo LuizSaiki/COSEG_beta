@@ -252,3 +252,12 @@ button.op { cursor: pointer; }
   .rodape .btn { flex: 1; }
   .acoes .btn { flex: 1 1 100%; }
 }
+
+/* seletor de dia do painel */
+.seletor-data { display: flex; align-items: center; gap: 6px; }
+.ic { width: 42px; height: 42px; border-radius: 50%; background: var(--card); border: 0; display: grid; place-items: center; color: var(--tinta-2); flex: none; }
+.ic:hover { color: var(--tinta); }
+.in-data { height: 42px; border-radius: 999px; background: var(--card); display: flex; align-items: center; gap: 8px; padding: 0 14px; color: var(--tinta-3); }
+.in-data:focus-within { box-shadow: 0 0 0 2px var(--verde); }
+.in-data input { border: 0; outline: 0; background: transparent; font-weight: 600; color: var(--tinta); height: 100%; font-size: 13.5px; }
+@media (max-width: 900px) { .seletor-data { width: 100%; } .in-data { flex: 1; } .in-data input { width: 100%; } }
