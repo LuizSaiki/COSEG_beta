@@ -4,7 +4,6 @@ import { esc, icones, iconeVeiculo, toast, abrirDialogo, confirmar, estadoErro, 
 import { hojeISO, somarDias, intervalo, situacao, horaAgora, nomeCategoria, semAcento, ROTULO_SITUACAO } from "./dominio.js";
 
 const el = (id) => document.getElementById(id);
-const params = new URLSearchParams(location.search);
 let usuario, coseg = false;
 let veiculos = [], reservas = [];
 let filtro = "todos", busca = "", selecionadoId = null;
@@ -313,10 +312,9 @@ async function excluir(v) {
 }
 
 // ---------- início ----------
-usuario = await iniciar({ ativo: params.get("gestao") ? "gestao" : "frota" });
+usuario = await iniciar({ ativo: "frota" });
 coseg = !!usuario.coseg;
 el("cadastrar").hidden = !coseg;
 el("lista").setAttribute("aria-busy", "true");
 await carregar();
-if (coseg && params.get("gestao")) el("cadastrar").focus();
 icones();

@@ -21,7 +21,6 @@ function montarMenu(usuario, ativo) {
         ${itemMenu("frota", ativo, "/frota/", "car-front", "Frota")}
         ${itemMenu("reservas", ativo, "/reservas/", "calendar-check-2", "Reservas")}
         ${itemMenu("nova", ativo, "/reservas/nova/", "circle-plus", "Nova reserva")}
-        ${coseg ? `<span class="grupo">Gestão</span>${itemMenu("gestao", ativo, "/frota/?gestao=1", "sliders-horizontal", "Veículos")}` : ""}
       </nav>
       <div class="eu"><span class="av">${esc(iniciais(usuario.nome || usuario.username))}</span><div><b>${esc(usuario.nome || usuario.username)}</b><span>${coseg ? "COSEG" : "Colaborador"}</span></div><button type="button" class="sair" aria-label="Sair" title="Sair"><i data-lucide="log-out"></i></button></div>
     </div>`;
