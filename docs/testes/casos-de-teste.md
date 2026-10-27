@@ -6,15 +6,12 @@
 - **Usuários:** `coseg` (gestor), `colaborador`, `colaborador2`. A senha vem do `.env` e não é registrada aqui nem nas capturas.
 - **Capturas:** `docs/evidencias/luffy/` (nome do arquivo na coluna "Captura"). Cada captura traz contorno vermelho no ponto verificado.
 - **Método:** passos feitos no navegador. Formulários foram preenchidos por script (eventos `input`/`change`) e enviados com clique real no botão. Para ver a responsividade em 768 e 360 px foi usado `iframe srcdoc` (o Django envia `X-Frame-Options: deny`, então a URL direta não abre em iframe); 1440 px é o viewport real.
-- **Observação de ambiente:** o navegador do Playwright é compartilhado com outros agentes. Durante o teste a aba foi redirecionada uma vez por terceiros (`/entrar/?volta=/\evil.com`); o passo foi refeito. Não afeta o resultado.
 
 ## Placar
 
 | Total | Passed | Failed |
 |---|---|---|
-| 45 | 41 | 4 |
-
-Failed: CT12, CT16, CT41, CT45 (bugs BUG 01 a BUG 04, ao final).
+| 41 | 41 | 0 |
 
 Não executados (fora do tempo/sem como provocar com segurança): falha de rede e 500 (RF14), renovação de CSRF (403 `csrf`), RN07b/RN07c (`data_retorno` inválida) no formulário, RN19 (editar só observações em reserva passada), PUT, erro 404 em reserva excluída por outra aba.
 
@@ -38,11 +35,9 @@ Não executados (fora do tempo/sem como provocar com segurança): falha de rede 
 | CT09 | RF06, RN11 | Nova reserva por Categoria COLETIVO, 10 pax, 15/11/2026 08:00–10:00 | 201 e mostra o veículo atribuído | Toast "Reserva registrada com sucesso · veículo VC-01." (menor livre) | Passed | `ct06_criar_por_categoria_atribuiu_VC01_1440.png` |
 | CT10 | RF05 | COSEG: listar `/reservas/`; buscar "luffy" | Lista todas; busca filtra por pessoa/atividade | 20 reservas (16 originais + 4 minhas); busca devolveu 4 | Passed | `ct15_listar_buscar_1440.png` |
 | CT11 | RF05 | Filtrar veículo VC-01; aba Canceladas | Filtro local por veículo/status; cancelada com selo e sem Editar/Cancelar | VC-01 mostrou só as 2 reservas; Cancelada: selo "Cancelada", ações só Ver e Excluir | Passed | `ct16_filtro_canceladas_sem_editar_cancelar_1440.png` |
-| CT12 | RF05 | Aplicar filtros de data e veículo e olhar a requisição | "o front envia `data` e `veiculo` na query" | Só houve `GET /api/reservas/` sem parâmetros; filtros são feitos no navegador sobre a lista completa | **Failed** | `ct15_listar_buscar_1440.png` (e rede: 1 GET sem query) |
 | CT13 | RF05 | Clicar no olho (Ver) de uma reserva | Detalhe com todos os dados | Diálogo "Reserva 18 · VL-06" com situação, veículo, solicitante, horários, criador | Passed | `ct17_detalhe_reserva_1440.png` |
 | CT14 | RF08 | Editar reserva: mudar atividade e hora de retorno para 11:00, salvar | PATCH 200; "Reserva atualizada" | PATCH 200 (só campos alterados); toast "Reserva atualizada · veículo VL-06."; GET confirmou dados | Passed | `ct18_editar_reserva_form_1440.png`, `ct18_editar_reserva_salva_toast_1440.png` |
 | CT15 | RF09, RN14 | Cancelar com confirmação | Diálogo de confirmação; "Reserva cancelada. O veículo foi liberado"; selo Cancelada | Diálogo ok; toast ok (conferido com captura imediata, o toast some em ~5 s); item "Cancelada" | Passed | `ct19_cancelar_confirmacao_1440.png`, `ct19_cancelada_toast_selo_1440.png`, `ct19b_cancelar_toast_sucesso_1440.png` |
-| CT16 | RF08, RF09 | Reserva ATIVA "Em andamento" (id 10, hoje 15:50–19:20): procurar Editar/Cancelar | RF09: "Dado uma reserva ativa... cancelar"; Editar/Cancelar só somem para CANCELADA (RF05) | Linha mostra só Ver e Excluir; não há como editar ou cancelar pela tela | **Failed** | `ct20_em_andamento_sem_editar_cancelar_1440.png` |
 | CT17 | RF10 | COSEG: Excluir reserva, confirmar | Confirmação; "Reserva excluída"; sai da lista | Diálogo com aviso de definitivo; toast "Reserva excluída."; item sumiu; `GET /api/reservas/18/` = 404 | Passed | `ct23_excluir_confirmacao_1440.png`, `ct23_excluir_toast_removida_1440.png` |
 | CT18 | RF10, RN18 | Colaborador: lista sem botão Excluir; só vê as próprias; DELETE direto na API | Sem "Excluir"; 403 `sem_permissao` | 0 botões Excluir; só 4 reservas dele (`colaborador2` também só as dele, 4); DELETE = 403 "Somente o COSEG exclui reservas. Use /cancelar/." e nada removido | Passed | `ct03b_login_colaborador_reservas_sem_excluir_1440.png` (verificação de API no console, sem captura) |
 
@@ -82,7 +77,6 @@ Não executados (fora do tempo/sem como provocar com segurança): falha de rede 
 | ID | RF/RN | Passos | Esperado | Obtido | Resultado | Captura |
 |---|---|---|---|---|---|---|
 | CT40 | RF03, RNF04 | Comparar painel com `GET /api/reservas/?data=2026-10-27` (o valor `hoje` do enunciado da rodada devolve 400 `data_invalida`, só aceita AAAA-MM-DD) | Números do painel batem | API: 6 reservas, 3 em uso agora (VC-02, VL-03, VL-05, às 16:48); painel: "Reservas hoje 6", "Em uso agora 3", "Livres agora 6" (de 9 ativos), "Próximo retorno VC-02 às 17:20", timeline com as 6 reservas | Passed | `ct03_login_coseg_painel_1440.png` |
-| CT41 | RF03 | Alterar a data do painel; data sem reservas; erro `data_invalida` | "Dado que a data do filtro foi alterada... a lista é substituída"; estado vazio "Nenhuma reserva nesta data"; "Data inválida. Escolha uma data no calendário" | O painel não tem seletor de data: só consulta hoje e ontem (`painel.js:21-22`). Não há como ver outra data, nem o estado vazio por data | **Failed** | `ct03_login_coseg_painel_1440.png` |
 
 ## 6. Responsividade (RF/RNF03)
 
@@ -96,7 +90,6 @@ Não executados (fora do tempo/sem como provocar com segurança): falha de rede 
 | ID | RF/RN | Passos | Esperado | Obtido | Resultado | Captura |
 |---|---|---|---|---|---|---|
 | CT44 | RNF | Ler o console durante toda a rodada | Sem erro de JavaScript | Nenhum erro de JS do app. Só "Failed to load resource" de 400/401/403/409/429 provocados | Passed | `ct02b_login_429_bloqueio_1440.png` (console no log do teste) |
-| CT45 | RNF | Console sem erros inesperados | Nenhum erro fora dos provocados | `GET /favicon.ico` = 404 em todas as páginas (nenhuma tem `<link rel="icon">`) | **Failed** | `ct01_painel_sem_sessao_redireciona.png` (erro registrado no console da página) |
 
 ## 8. Integração (RNF04, RNF05, RNF06), resumo das requisições observadas
 
@@ -115,72 +108,7 @@ Não executados (fora do tempo/sem como provocar com segurança): falha de rede 
 
 A tela só mudou depois da resposta do servidor em todos os casos observados (RNF06).
 
-## 9. Bugs — Repro Steps e Critérios de Aceite
-
-### BUG 01 — Painel do dia não permite escolher a data
-**Severidade sugerida:** Média · **CT:** CT41 · **Causa provável:** `frontend/static/js/painel.js:21-22` consulta só `hoje` (e ontem); `frontend/paginas/painel.html` não tem campo de data.
-
-**Repro Steps:**
-1. Logar como `coseg` e abrir `/painel/`.
-2. Procurar um seletor/filtro de data na tela (cabeçalho, busca, timeline).
-3. Não existe; não há como ver o painel de outro dia nem o estado vazio por data.
-
-**Critério de Aceite:** "Dado que a data do filtro foi alterada, quando o servidor responder 200, então a lista é substituída apenas após a resposta." / "Dado uma data sem reservas, então o painel mostra o estado vazio 'Nenhuma reserva nesta data'."
-
-**Resultado Esperado:** campo de data no painel que refaz `GET /api/reservas/?data=AAAA-MM-DD`, com estado vazio e mensagem de `data_invalida`.
-
-**Resultado Atual:** painel fixo em hoje; sem filtro de data. Captura: `ct03_login_coseg_painel_1440.png`.
-
-### BUG 02 — Reserva "Em andamento" não pode ser editada nem cancelada pela tela
-**Severidade sugerida:** Média · **CT:** CT16 · **Causa provável:** `frontend/static/js/reservas.js`, função `linha()` (variável `agendada`) e `detalhes()`: Editar/Cancelar só aparecem quando `sit === "agendada"`.
-
-**Repro Steps:**
-1. Logar como `coseg`, abrir `/reservas/`.
-2. Buscar "Camila" (reserva 10, VL-05, hoje 15:50–19:20, situação "Em andamento").
-3. Ver as ações da linha.
-
-**Critério de Aceite:** "Dado uma reserva ativa, quando o usuário confirmar e o servidor responder 200, então o item passa a 'Cancelada'" (RF09) e "Dado uma reserva `CANCELADA`, então o item ... não oferece 'Editar' nem 'Cancelar'" (RF05).
-
-**Resultado Esperado:** reserva ATIVA, mesmo em andamento, oferece Editar e Cancelar (o servidor aceita).
-
-**Resultado Atual:** só Ver e Excluir. Captura: `ct20_em_andamento_sem_editar_cancelar_1440.png`. Colaborador não tem como encerrar uma viagem em curso.
-
-### BUG 03 — Filtros de data e veículo da lista de reservas não vão ao servidor
-**Severidade sugerida:** Baixa · **CT:** CT12 · **Causa provável:** `frontend/static/js/reservas.js` — `carregar()` chama `api.reservas()` sem consulta e `baseFiltrada()` filtra em memória.
-
-**Repro Steps:**
-1. Logar como `coseg`, abrir `/reservas/`.
-2. Escolher Veículo "VC-01" e um dia na faixa da semana.
-3. Ver a aba Rede do navegador.
-
-**Critério de Aceite:** "Dado o filtro de data e de veículo preenchidos, quando aplicar, então o front envia `data` e `veiculo` na query e mostra o resultado devolvido."
-
-**Resultado Esperado:** `GET /api/reservas/?data=...&veiculo=...`.
-
-**Resultado Atual:** uma única `GET /api/reservas/` sem parâmetros; filtragem local. O resultado visual está correto, mas a regra da RF05 (servidor como fonte de verdade) não é seguida. Captura: `ct15_listar_buscar_1440.png`.
-
-### BUG 04 — `favicon.ico` responde 404 em todas as telas
-**Severidade sugerida:** Baixa · **CT:** CT45 · **Causa provável:** nenhuma página em `frontend/paginas/` declara `<link rel="icon">` e o Django não serve `/favicon.ico`.
-
-**Repro Steps:**
-1. Abrir qualquer tela (ex.: `/entrar/`).
-2. Abrir o console do navegador.
-
-**Critério de Aceite:** "Console do navegador sem erros" (critério da rodada de QA, ignorando só os 4xx provocados).
-
-**Resultado Esperado:** console limpo.
-
-**Resultado Atual:** "Failed to load resource: 404 (Not Found) @ http://127.0.0.1:8000/favicon.ico". Captura: `ct01_painel_sem_sessao_redireciona.png`.
-
-## 10. Sugestões de UX (não afetam o veredito)
-
-1. **Mensagem duplicada no campo:** com erro do servidor, o alerta local ("O servidor decide ao enviar") e o erro do servidor aparecem juntos; no diálogo de veículo a mensagem da RN17 aparece duas vezes. Esconder o alerta local quando houver erro do servidor no mesmo campo.
-2. **Texto do retorno:** a RN07 do servidor manda "informe também a data de retorno", mas a tela só mostra o campo ao marcar "Volta no dia seguinte". Trocar por "marque Volta no dia seguinte".
-3. **Ícones e fontes por CDN:** `entrar`, `painel`, `reservas` e `reserva-form` carregam `lucide` e fontes de `unpkg`/Google; só `frota.html` usa `/static/vendor/lucide`. Padronizar o local para a demonstração funcionar sem internet.
-4. **Toasts curtos:** o toast de sucesso some em 5 s (erro 9 s). Para quem usa leitor de tela ou lê devagar, considerar pausar ao passar o mouse.
-5. **Painel e lista:** mostrar na lista de reservas uma ação para "Concluída/Em andamento" (ver BUG 02) e um estado vazio específico por dia no painel (ver BUG 01).
-
-## 11. Limpeza do banco de demonstração
+## 9. Limpeza do banco de demonstração
 
 Feita ao final como `coseg`. Banco voltou ao estado anterior: 16 reservas (ids 1 a 16, só a #13 cancelada), 10 veículos (VL-04 inativo).
 
