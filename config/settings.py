@@ -156,3 +156,16 @@ DATABASES["default"].setdefault("OPTIONS", {}).update(
 
 # Erros 404/405/500 sob /api/ passam a responder em JSON
 MIDDLEWARE.insert(0, "reservas.middleware.ApiJsonErrorsMiddleware")
+
+# ---------------- Publicação de demonstração no Vercel ----------------
+# O Vercel define VERCEL=1. A função é serverless: o disco só aceita escrita em /tmp e é
+# descartado quando a instância desliga. O banco é recriado com os dados de demonstração
+# (ver config/wsgi.py) e a sessão vai num cookie assinado, para o login valer em qualquer
+# instância. Reservas criadas na demonstração podem sumir quando a instância reinicia.
+if os.environ.get("VERCEL"):
+    DATABASES["default"]["NAME"] = "/tmp/coseg-demo.sqlite3"
+    SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    MIDDLEWARE.insert(MIDDLEWARE.index("django.middleware.security.SecurityMiddleware") + 1,
+                      "whitenoise.middleware.WhiteNoiseMiddleware")
+    WHITENOISE_USE_FINDERS = True   # serve frontend/static direto, sem collectstatic

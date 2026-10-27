@@ -43,3 +43,15 @@ Abra http://127.0.0.1:8000/ (redireciona para a tela de login).
 ```powershell
 .\.venv\Scripts\python manage.py test
 ```
+
+## Demonstração no Vercel
+
+Publicado em https://coseg-mobilidade.vercel.app (modo demonstração).
+
+- O Vercel roda o Django como função serverless (`vercel.json` → `config/wsgi.py`).
+- Não há banco persistente: cada instância cria um SQLite em `/tmp` e roda `migrate`,
+  `criar_usuarios_teste` e `seed_demo` ao iniciar. **Reservas criadas na demonstração
+  somem quando a instância reinicia.** A sessão vai num cookie assinado.
+- Variáveis de produção no projeto do Vercel: `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=False`,
+  `DJANGO_ALLOWED_HOSTS=.vercel.app` e `COSEG_SENHA_TESTE`.
+- Publicar de novo: `vercel --prod`.
