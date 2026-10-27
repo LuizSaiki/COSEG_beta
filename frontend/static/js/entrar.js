@@ -9,8 +9,16 @@ document.getElementById("marca").insertAdjacentHTML("afterbegin", LOGO);
 const params = new URLSearchParams(location.search);
 
 // só aceita caminho interno do próprio site (evita redirecionamento aberto)
+// valida a URL já resolvida pelo navegador: "/\site.com" e "/%09/site.com" viram outra origem
 function destinoSeguro(volta) {
-  return volta && volta.startsWith("/") && !volta.startsWith("//") && !volta.startsWith("/entrar") ? volta : null;
+  if (!volta || !volta.startsWith("/")) return null;
+  try {
+    const url = new URL(volta, location.origin);
+    if (url.origin !== location.origin || url.pathname.startsWith("/entrar")) return null;
+    return url.pathname + url.search + url.hash;
+  } catch {
+    return null;
+  }
 }
 const destino = (usuario) => destinoSeguro(params.get("volta")) || (usuario.coseg ? "/painel/" : "/reservas/");
 
